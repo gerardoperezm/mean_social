@@ -5,7 +5,7 @@ const moment = require('moment');
 
 const secret = 'clave_secreta_mean_social';
 
-function ensureAuth(req, res, next) {
+function isLoggedIn(req, res, next) {
 	if (!req.headers.authorization) return res.status(403).send({ message: 'La peticion no tiene cabecera de autenticacion' });
 
 	var token = req.headers.authorization.replace(/['"]+/g , '');
@@ -23,4 +23,4 @@ function ensureAuth(req, res, next) {
 	next();
 }
 
-module.exports = { ensureAuth };
+module.exports = { isLoggedIn };
