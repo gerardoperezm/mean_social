@@ -38,7 +38,7 @@ function login(req, res) {
 		if (err) return res.status(500).send({ message: 'Error en la peticion', error: err });
 		if (!user) return res.status(404).send({ message: 'El email no esta registrado' });
 		bcrypt.compare(password, user.password, (err, check) => {
-			if (err) return res.status(500).send({ message: 'Error en la peticion' });
+			if (err) return res.status(500).send({ message: 'Error en la peticion', error: err });
 			if (!check) return res.status(404).send({ message: 'Contraseña incorrecta' });
 
 			if (params.gettoken) {

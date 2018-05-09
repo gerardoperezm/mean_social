@@ -81,8 +81,8 @@ function add_avatar(req, res) {
 
 	var user_id = req.params.id;
 	var file_path = req.files.image.path;
-	var file_name = file_path.split('\/')[2];
-	var file_ext = file_name.split('\.')[1];
+	var file_name = file_path.split('\\')[2];
+	var file_ext = file_name.split('.')[1];
 
 	if (user_id != req.user.sub) return removeAvatar(res, file_path, 'No tienes permiso para actualizar este usuario');
 	if (!req.files) return res.status(500).send({ message: 'No se han subido imagenes' });

@@ -8,7 +8,7 @@ const AvatarMiddleware = multipaty({ uploadDir: './uploads/avatars' });
 
 var api = express.Router();
 
-api.get('/:page?', AuthMiddleware.isLoggedIn, UserController.browse);
+api.get('/all/:page?', AuthMiddleware.isLoggedIn, UserController.browse);
 api.get('/:id', AuthMiddleware.isLoggedIn, UserController.read);
 api.put('/:id', AuthMiddleware.isLoggedIn, UserController.edit);
 api.get('/avatar/:image', UserController.get_avatar);
