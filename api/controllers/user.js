@@ -1,36 +1,43 @@
 'use strict';
 
+const mongoosePagination = require('mongoose-pagination');
 const bcrypt = require('bcrypt-nodejs');
 const User = require('../models/user');
 
-function show(req, res) {
-	// TODO
-	res.status(200);
-	res.send({ message: 'hola mundo' });
+function browse(req, res) {
+	// var user_id = req.user.sub;
+
+	var page = req.params.page ? req.params.page : 1;
+	var items = 10;
+
+	User.find().sort('_id').paginate(page, items, (err, data, total) => {
+		if (err) return res.status(500).send({ message: 'Error en la peticion', error: err });
+		if (!data) return res.status(404).send({ message: 'No hay usuarios disponibles' });
+
+		return res.status(200).send({ users: data, total: total, pages: Math.ceil(total / items) });
+	});
 }
 
-function create(req, res) {
-	var params = req.body;
-	var user = new User();
+function read(req, res) {
+	User.findById(req.params.id, (err, data) => {
+		if (err) return res.status(500).send({ message: 'Error en la peticion', error: err });
+		if (!data) return res.status(404).send({ message: 'El usuario no existe' });
 
-	if (params.name && params.surname && params.nick && params.email && params.password) {
-		user.name = params.name;
-		user.surname = params.surname;
-		user.nick = params.nick.toLowerCase();
-		user.email = params.email.toLowerCase();
-		user.role = 'ROLE_USER';
-		user.image = null;
-		bcrypt.hash(params.password, null, null, (err, hash) => {
-			user.password = hash;
-			user.save((err, data) => {
-				if (err) return res.status(500).send({ message: 'Error al guardar el usuario: ', error: err });
-				if (data) return res.status(200).send({ user: data });
-				return res.status(404).send({ message: 'No se ha registrado el usuario' });
-			});
-		});
-	} else {
-		return res.status(200).send({ message: 'Envia todos los campos necesarios.' });
-	}
+		data.password = undefined;
+		return res.status(200).send({ user: data });
+	});
 }
 
-module.exports = { show, create };
+function edit(req, res) {
+	return null;
+}
+
+function add(req, res) {
+	return null;
+}
+
+function drop(req, res) {
+	return null;
+}
+
+module.exports = { browse, read, edit, add, drop };
