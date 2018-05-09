@@ -14,6 +14,7 @@ app.use(bodyParser.json());
 // Routes
 app.use('/api/v1/auth', require('./routes/auth'));
 app.use('/api/v1/user', require('./routes/user'));
+app.use('/api/v1/follow', require('./routes/follow'));
 
 
 // Export server

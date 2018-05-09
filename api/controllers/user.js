@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path'); 
 const mongoosePagination = require('mongoose-pagination');
 const bcrypt = require('bcrypt-nodejs');
+
 const User = require('../models/user');
 
 /**
