@@ -5,8 +5,8 @@ const port = 3800;
 
 const mongoose = require('mongoose');
 
-// const MONGO_URI = 'mongodb+srv://gerardo:P3r3z*@development-fstz3.mongodb.net/mean_social';
-const MONGO_URI = 'mongodb://localhost:27017/mean_social';
+const MONGO_URI = 'mongodb+srv://gerardo:P3r3z*@development-fstz3.mongodb.net/mean_social';
+// const MONGO_URI = 'mongodb://localhost:27017/mean_social';
 
 mongoose.connect(MONGO_URI).then(
 	() => {

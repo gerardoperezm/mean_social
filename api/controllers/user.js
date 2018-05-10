@@ -14,7 +14,7 @@ const User = require('../models/user');
 function browse(req, res) {
 	var user_id = req.user.sub;
 
-	var page = req.params.page ? req.params.page : 1;
+	var page = req.params.page || 1;
 	var items = 10;
 
 	User.find().sort('_id').paginate(page, items, (err, data, total) => {

@@ -1,35 +1,131 @@
-'use strict';
+ 'use strict';
 
-// const fs = require('fs');
-// const path = require('path');
 const mongoosePagination = require('mongoose-pagination');
 
 const User = require('../models/user');
 const Follow = require('../models/follow');
 
-function prueba(req, res) {
-	res.status(200).send({ message: 'Hola desde followers' });
+/**
+  * Browse
+  * List all followed users
+  */
+function browse(req, res) {
+	var user_id = req.user.sub;
+	var page = 1;
+	var items = 4;
+
+	var paginated = true;
+
+	if (req.params.id && req.params.page) {
+		user_id = req.params.id;
+		page = req.params.page;
+	} else if (req.params.id) {
+		// page instead of user id
+		if (/^[0-9]+$/.test(req.params.id)) {
+			page = req.params.id;
+		} else {
+			user_id = req.params.id;
+			paginated = false;
+		}
+	} else {
+		paginated = false;
+	}
+
+	if (paginated) {
+
+		Follow.find({ user: user_id }).populate('followed').paginate(page, items, (err, data, total) => {
+			if (err) return res.status(500).send({ message: 'Error en la peticion', error: err });
+			if (!data) return res.status(404).send({ message: 'No se sigue a ningun usuario' });
+			return res.status(200).send({ follows: data, total: total, pages: Math.ceil(total / items) });
+		});
+
+	} else {
+
+		Follow.find({ user: user_id }).populate('followed').exec((err, data) => {
+			if (err) return res.status(500).send({ message: 'Error en la peticion', error: err });
+			if (!data) return res.status(404).send({ message: 'No se sigue a ningun usuario' });
+			return res.status(200).send({ follows: data });
+		});
+
+	}
 }
 
 /**
-  * Browse
-  * Returns a list of n paginated users
+  * Read
+  * List followers for a particular user
   */
-// function browse(req, res) {
-// 	var user_id = req.user.sub;
+function read(req, res) {
+	var user_id = req.user.sub;
+	var page = 1;
+	var items = 4;
 
-// 	var page = req.params.page ? req.params.page : 1;
-// 	var items = 10;
+	var paginated = true;
 
-// 	User.find().sort('_id').paginate(page, items, (err, data, total) => {
-// 		if (err) return res.status(500).send({ message: 'Error en la peticion', error: err });
-// 		if (!data) return res.status(404).send({ message: 'No hay usuarios disponibles' });
+	if (req.params.id && req.params.page) {
+		user_id = req.params.id;
+		page = req.params.page;
+	} else if (req.params.id) {
+		// page instead of user id
+		if (/^[0-9]+$/.test(req.params.id)) {
+			page = req.params.id;
+		} else {
+			user_id = req.params.id;
+			paginated = false;
+		}
+	} else {
+		paginated = false;
+	}
 
-// 		return res.status(200).send({ users: data, total: total, pages: Math.ceil(total / items) });
-// 	});
-// }
+	if (paginated) {
 
-// module.exports = { browse };
+		Follow.find({ followed: user_id }).populate('user').paginate(page, items, (err, data, total) => {
+			if (err) return res.status(500).send({ message: 'Error en la peticion', error: err });
+			if (!data) return res.status(404).send({ message: 'No se sigue a ningun usuario' });
+			return res.status(200).send({ follows: data, total: total, pages: Math.ceil(total / items) });
+		});
 
-module.exports = { prueba };
+	} else {
+
+		Follow.find({ followed: user_id }).populate('user').exec((err, data) => {
+			if (err) return res.status(500).send({ message: 'Error en la peticion', error: err });
+			if (!data) return res.status(404).send({ message: 'No se sigue a ningun usuario' });
+			return res.status(200).send({ follows: data });
+		});
+
+	}
+}
+
+/**
+  * Add
+  * Add a new follow
+  */
+function add(req, res) {
+	var params = req.body;
+ 	var follow = new Follow();
+
+ 	follow.user = req.user.sub;
+ 	follow.followed = params.followed;
+
+ 	follow.save((err, data) => {
+ 		if (err) return res.status(500).send({ message: 'Error en la peticion', error: err });
+ 		if (!data) return res.status(404).send({ message: 'No se pudo seguir al usuario' });
+ 		return res.status(200).send({ follow: data });
+ 	});
+}
+
+/**
+  * Drop
+  * Unfollow user by id
+  */
+function drop(req, res) {
+	var user_id = req.user.sub;
+	var follow_id = req.params.id; 
+
+	Follow.find({ 'user': user_id, 'followed': follow_id }).remove((err) => {
+		if (err) return res.status(500).send({ message: 'Error en la peticion', error: err });
+		return res.status(200).send({ message: 'Has dejado de seguir al usuario' });
+	});
+}
+
+module.exports = {  browse, read, add, drop };
 
